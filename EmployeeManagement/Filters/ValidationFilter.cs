@@ -26,7 +26,9 @@ namespace EmployeeManagement.API.Filters
             var validationResult= await _validator.ValidateAsync(model);
             if (!validationResult.IsValid)
             {
-                context.Result = new BadRequestObjectResult(validationResult.Errors);
+                var errors = validationResult.Errors.GroupBy(e => e.PropertyName).ToDictionary(g => g.Key,
+                    g => g.Select(x => x.ErrorMessage));
+                context.Result = new BadRequestObjectResult(errors);
                 return;
             }
             await next();
