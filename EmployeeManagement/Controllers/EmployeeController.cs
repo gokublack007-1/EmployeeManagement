@@ -12,13 +12,9 @@ namespace EmployeeManagement.API.Controllers
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
-        private readonly IValidator<CreateEmployeeDTO> _validator;
-        private readonly IValidator<UpdateEmployeeDTO> _updateEmployeeDTOValidator;
         public EmployeeController(IEmployeeService employeeService,IValidator<CreateEmployeeDTO> validator ,IValidator<UpdateEmployeeDTO> updateEmployeeDTOValidator)
         {
             _employeeService = employeeService;
-            _validator = validator;
-            _updateEmployeeDTOValidator = updateEmployeeDTOValidator;
         }
 
         [HttpGet]
@@ -46,7 +42,6 @@ namespace EmployeeManagement.API.Controllers
         [ServiceFilter(typeof(ValidationFilter<CreateEmployeeDTO>))]
         public async Task<IActionResult> Create(CreateEmployeeDTO employeeDto)
         {
-            var result = await _validator.ValidateAsync(employeeDto);
             await _employeeService.AddAsync(employeeDto);
 
             return Ok();
@@ -58,7 +53,6 @@ namespace EmployeeManagement.API.Controllers
             int id,
             UpdateEmployeeDTO employeeDto)
         {
-            var result = await _updateEmployeeDTOValidator.ValidateAsync(employeeDto);
             await _employeeService.UpdateAsync(id, employeeDto);
 
             return NoContent();
