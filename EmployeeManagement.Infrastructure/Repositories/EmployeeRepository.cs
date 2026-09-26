@@ -28,6 +28,10 @@ namespace EmployeeManagement.Infrastructure.Repositories
         {
             return await _context.Employees.AsNoTracking().ToListAsync();
         }
+        public IQueryable<Employee> GetQueryable()
+        {
+            return _context.Employees.AsNoTracking();
+        }
 
         public void Add(Employee employee)
         {

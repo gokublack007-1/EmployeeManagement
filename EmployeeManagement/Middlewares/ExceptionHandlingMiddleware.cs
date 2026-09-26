@@ -31,6 +31,7 @@ namespace EmployeeManagement.API.Middlewares
             context.Response.StatusCode = ex switch
             {
                 NotFoundException => StatusCodes.Status404NotFound,
+                UserAlreadyExistsException=>StatusCodes.Status409Conflict,
                 _ => StatusCodes.Status500InternalServerError
             };
             var response = new ErrorResponse();

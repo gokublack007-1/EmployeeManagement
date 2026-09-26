@@ -3,6 +3,7 @@ using EmployeeManagement.Application.Contracts.Services;
 using EmployeeManagement.Application.DTOs;
 using EmployeeManagement.Application.Exceptions;
 using EmployeeManagement.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +31,65 @@ namespace EmployeeManagement.Application.Services
                 Salary=e.Salary
                 
             });
+
+        }
+        public async Task<PagedResult<EmployeeDTO> >GetPagedAsync(int pageNumber,int pageSize,decimal? minSalary,decimal? maxSalary, string? search, string? sortBy
+            , string? sortOrder)
+        
+        {
+            var query =  _unitOfWork.Employees.GetQueryable();
+            if(minSalary.HasValue)
+            {
+                query = query.Where(q => q.Salary >= minSalary.Value);
+            }
+            if (maxSalary.HasValue)
+            {
+                query = query.Where(q => q.Salary <= maxSalary.Value);
+            }
+            if (!String.IsNullOrEmpty(search))
+            {
+                query=query.Where(q=>q.FirstName.Contains(search) || q.LastName.Contains(search) || q.Email.Contains(search));
+            }
+            var totalCount = await query.CountAsync();
+            if(String.IsNullOrWhiteSpace(sortBy))
+            {
+                query = query.OrderBy(q => q.Id);
+            }
+            else
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "salary":
+                        query = sortOrder?.ToLower() == "desc" ? query.OrderByDescending(q => q.Salary) : query.OrderBy(q => q.Salary);
+                        break;
+                    case "firstname":
+                        query = sortOrder?.ToLower() == "desc" ? query.OrderByDescending(q => q.FirstName) : query.OrderBy(q => q.FirstName);
+                        break;
+                    case "lastname":
+                        query = sortOrder?.ToLower() == "desc" ? query.OrderByDescending(q => q.LastName) : query.OrderBy(q => q.LastName);
+                        break;
+                    default:
+                        query.OrderBy(q => q.Id);
+                        break;
+                }
+            }
+                var skip = (pageNumber - 1) * pageSize;
+            var employees=await query.Skip(skip).Take(pageSize).ToListAsync();
+            var employeedtos= employees.Select(e => new EmployeeDTO
+            {
+                Id = e.Id,
+                FullName = e.FirstName + " " + e.LastName,
+                Email = e.Email,
+                Salary = e.Salary
+
+            });
+            var result=new PagedResult<EmployeeDTO>();
+            result.Items=employeedtos;
+            result.TotalCount=totalCount;
+            result.PageNumber = pageNumber;
+            result.PageSize = pageSize;
+
+            return result;
 
         }
         public async Task<EmployeeDTO?> GetByIdAsync(int id)

@@ -12,10 +12,12 @@ namespace EmployeeManagement.Infrastructure.Persistance
     {
         private readonly ApplicationDbContext _context;
         public IEmployeeRepository Employees { get; private set; }
-        public UnitOfWork(ApplicationDbContext context, IEmployeeRepository employeeRepository)
+        public IUserRepository Users { get; private set; }
+        public UnitOfWork(ApplicationDbContext context, IEmployeeRepository employeeRepository, IUserRepository users)
         {
             _context = context;
             Employees = employeeRepository;
+            Users = users;
         }
         public  Task<int> SaveChangesAsync()
         {

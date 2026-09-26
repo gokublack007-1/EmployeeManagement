@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EmployeeManagement.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace EmployeeManagement.Application.Contracts.Repositories
 {
-    public interface IUnitOfWork
+    public interface IUserRepository
     {
-        IEmployeeRepository Employees { get; }
-        IUserRepository Users { get; }
-        Task<int> SaveChangesAsync();
+        Task<User?> GetByEmailAsync(string email);
+        void Add(User user);
+
     }
 }
